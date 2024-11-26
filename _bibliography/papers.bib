@@ -1,115 +1,50 @@
 ---
 ---
 
-@string{aps = {American Physical Society,}}
-
-@book{einstein1920relativity,
-  title={Relativity: the Special and General Theory},
-  author={Einstein, Albert},
-  year={1920},
-  publisher={Methuen & Co Ltd},
-  html={relativity.html}
-}
-
-@book{einstein1956investigations,
+@article{tu2024learning,
+  title={Learning genome-wide interactions of intrinsically disordered proteins with DNA using U-DisCo},
+  author={Tu, Hongwei and Zhang, Yang and Ma, Jian},
+  journal={Under Review},
+  year={2024},
   bibtex_show={true},
-  title={Investigations on the Theory of the Brownian Movement},
-  author={Einstein, Albert},
-  year={1956},
-  publisher={Courier Corporation},
-  preview={brownian-motion.gif}
-}
-
-@article{einstein1950meaning,
-  abbr={AJP},
-  bibtex_show={true},
-  title={The meaning of relativity},
-  author={Einstein, Albert and Taub, AH},
-  journal={American Journal of Physics},
-  volume={18},
-  number={6},
-  pages={403--404},
-  year={1950},
-  publisher={American Association of Physics Teachers}
-}
-
-@article{PhysRev.47.777,
-  abbr={PhysRev},
-  title={Can Quantum-Mechanical Description of Physical Reality Be Considered Complete?},
-  author={Einstein*†, A. and Podolsky*, B. and Rosen*, N.},
-  abstract={In a complete theory there is an element corresponding to each element of reality. A sufficient condition for the reality of a physical quantity is the possibility of predicting it with certainty, without disturbing the system. In quantum mechanics in the case of two physical quantities described by non-commuting operators, the knowledge of one precludes the knowledge of the other. Then either (1) the description of reality given by the wave function in quantum mechanics is not complete or (2) these two quantities cannot have simultaneous reality. Consideration of the problem of making predictions concerning a system on the basis of measurements made on another system that had previously interacted with it leads to the result that if (1) is false then (2) is also false. One is thus led to conclude that the description of reality as given by a wave function is not complete.},
-  journal={Phys. Rev.},
-  location={New Jersey},
-  volume={47},
-  issue={10},
-  pages={777--780},
-  numpages={0},
-  year={1935},
-  month={May},
-  publisher=aps,
-  doi={10.1103/PhysRev.47.777},
-  url={http://link.aps.org/doi/10.1103/PhysRev.47.777},
-  html={https://journals.aps.org/pr/abstract/10.1103/PhysRev.47.777},
-  pdf={example_pdf.pdf},
-  altmetric={248277},
-  dimensions={true},
-  google_scholar_id={qyhmnyLat1gC},
-  video={https://www.youtube-nocookie.com/embed/aqz-KE-bpKQ},
-  additional_info={. *More Information* can be [found here](https://github.com/alshedivat/al-folio/)},
-  annotation={* Example use of superscripts<br>† Albert Einstein},
+  abbr={Under Review},
+  abstract={Proteins are essential regulators of cellular processes. Intrinsically disordered proteins (IDPs), despite lacking stable tertiary structures under physiological conditions, play crucial yet often underexplored roles in biological processes. With recent experimental advances like DisP-seq for probing IDP-DNA binding, there is a pressing need for efficient, interpretable computational methods to identify sequence determinants of IDP-DNA interactions and analyze their cooperative effects on gene regulation. To address this, we develop U-DisCo, a novel deep learning model that predicts base-resolution IDP-DNA binding profiles directly from DNA sequences. Leveraging a U-Net architecture, U-DisCo captures both local base-level interactions and long-range dependencies up to 20 kilobases with high accuracy and computational efficiency, outperforming the baseline BPNet. By incorporating ATAC-seq data, U-DisCo enables robust cross-cell type predictions as a multimodal framework. U-DisCo identified key IDP-binding motifs, revealing distinct interaction patterns and cooperative behaviors across different IDPs. Interestingly, we observed short-range interactions for motifs like AP-2 and EWS-FLI1 (single GGAA motif), while others exhibited independent, enhancer-like functions. Further analysis revealed that some IDPs favored certain strand orientations, suggesting their involvement in specific regulatory mechanisms. Overall, U-DisCo is the first computational approach to explore multiple IDPs within a single cell type, offering a versatile framework for studying IDP-mediated gene regulation and genome-wide regulatory elements.},
+  additional_info={. [GitHub](https://github.com/LiamT01/u-disco)},
   selected={true},
-  inspirehep_id = {3255}
 }
 
-@article{einstein1905molekularkinetischen,
-  title={{\"U}ber die von der molekularkinetischen Theorie der W{\"a}rme geforderte Bewegung von in ruhenden Fl{\"u}ssigkeiten suspendierten Teilchen},
-  author={Einstein, A.},
-  journal={Annalen der physik},
-  volume={322},
-  number={8},
-  pages={549--560},
-  year={1905},
-  publisher={Wiley Online Library}
-}
-
-@article{einstein1905movement,
-  abbr={Ann. Phys.},
-  title={Un the movement of small particles suspended in statiunary liquids required by the molecular-kinetic theory 0f heat},
-  author={Einstein, A.},
-  journal={Ann. Phys.},
-  volume={17},
-  pages={549--560},
-  year={1905}
-}
-
-@article{einstein1905electrodynamics,
-  title={On the electrodynamics of moving bodies},
-  author={Einstein, A.},
-  year={1905}
-}
-
-@Article{einstein1905photoelectriceffect,
+@article{tu2024rotnet,
+  title={RotNet: A Rotationally Invariant Graph Neural Network for Quantum Mechanical Calculations},
+  author={Tu, Hongwei and Han, Yanqiang and Wang, Zhilong and Chen, An and Tao, Kehao and Ye, Simin and Wang, Shiwei and Wei, Zhiyun and Li, Jinjin},
+  journal={Small Methods},
+  volume={8},
+  number={1},
+  pages={2300534},
+  year={2024},
+  publisher={Wiley Online Library},
   bibtex_show={true},
-  abbr={Ann. Phys.},
-  title="{{\"U}ber einen die Erzeugung und Verwandlung des Lichtes betreffenden heuristischen Gesichtspunkt}",
-  author={Albert Einstein},
-  abstract={This is the abstract text.},
-  journal={Ann. Phys.},
-  volume={322},
+  abbr={Small Methods},
+  abstract={Deep learning has proven promising in biological and chemical applications, aiding in accurate predictions of properties such as atomic forces, energies, and material band gaps. Traditional methods with rotational invariance, one of the most crucial physical laws for predictions made by machine learning, have relied on Fourier transforms or specialized convolution filters, leading to complex model design and reduced accuracy and efficiency. However, models without rotational invariance exhibit poor generalization ability across datasets. Addressing this contradiction, this work proposes a rotationally invariant graph neural network, named RotNet, for accurate and accelerated quantum mechanical calculations that can overcome the generalization deficiency caused by rotations of molecules. RotNet ensures rotational invariance through an effective transformation and learns distance and angular information from atomic coordinates. Benchmark experiments on three datasets (protein fragments, electronic materials, and QM9) demonstrate that the proposed RotNet framework outperforms popular baselines and generalizes well to spatial data with varying rotations. The high accuracy, efficiency, and fast convergence of RotNet suggest that it has tremendous potential to significantly facilitate studies of protein dynamics simulation and materials engineering while maintaining physical plausibility.},
+  doi={10.1002/smtd.202300534},
+  additional_info={. [GitHub](https://github.com/LiamT01/RotNet)},
+  selected={true},
+  dimensions={true},
+}
+
+@article{tu2022clustered,
+  title={Clustered tree regression to learn protein energy change with mutated amino acid},
+  author={Tu, Hongwei and Han, Yanqiang and Wang, Zhilong and Li, Jinjin},
+  journal={Briefings in Bioinformatics},
+  volume={23},
   number={6},
-  pages={132--148},
-  year={1905},
-  doi={10.1002/andp.19053220607},
-  award={Albert Einstein receveid the **Nobel Prize in Physics** 1921 *for his services to Theoretical Physics, and especially for his discovery of the law of the photoelectric effect*},
-  award_name={Nobel Prize}
-}
-
-@book{przibram1967letters,
+  pages={bbac374},
+  year={2022},
+  publisher={Oxford University Press},
   bibtex_show={true},
-  title={Letters on wave mechanics},
-  author={Einstein, Albert and Schrödinger, Erwin and Planck, Max and Lorentz, Hendrik Antoon and Przibram, Karl},
-  year={1967},
-  publisher={Vision},
-  preview={wave-mechanics.gif},
-  abbr={Vision}
+  abbr={BIB},
+  abstract={Accurate and effective prediction of mutation-induced protein energy change remains a great challenge and of great interest in computational biology. However, high resource consumption and insufficient structural information of proteins severely limit the experimental techniques and structure-based prediction methods. Here, we design a structure-independent protocol to accurately and effectively predict the mutation-induced protein folding free energy change with only sequence, physicochemical and evolutionary features. The proposed clustered tree regression protocol is capable of effectively exploiting the inherent data patterns by integrating unsupervised feature clustering by K-means and supervised tree regression using XGBoost, and thus enabling fast and accurate protein predictions with different mutations, with an average Pearson correlation coefficient of 0.83 and an average root-mean-square error of 0.94kcal/mol. The proposed sequence-based method not only eliminates the dependence on protein structures, but also has potential applications in protein predictions with rare structural information.},
+  doi={10.1093/bib/bbac374},
+  additional_info={. [GitHub](https://github.com/LiamT01/CTR)},
+  selected={true},
+  dimensions={true},
 }
