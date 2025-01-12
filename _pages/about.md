@@ -6,8 +6,8 @@ subtitle:
 
 profile:
   align: right
-  image: hongwei.jpg
-  image_circular: true # crops the image to make it circular
+  image: hongwei_2.png
+  image_circular: false # crops the image to make it circular
   more_info: >
     Carnegie Mellon University
     Pittsburgh, PA 15213, USA
