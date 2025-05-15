@@ -1,7 +1,8 @@
 ---
 layout: distill
 title: "Scaling Like a Pro: Zero Bubble Pipeline Parallelism Demystified"
-description: Pipeline parallelism is key to efficient distributed training for large-scale models, but its performance is often hindered by pipeline bubbles, which are gaps in computation that limit throughput.
+description:
+  Pipeline parallelism is key to efficient distributed training for large-scale models, but its performance is often hindered by pipeline bubbles, which are gaps in computation that limit throughput.
   A recent paper introduces a breakthrough zero-bubble scheduling strategy, achieving up to 30% throughput improvement.
   In this post, we demystify the scheduling process with detailed, step-by-step illustrations, providing clarity and context that complement the original work.
   Whether you're new to ML systems or a seasoned researcher, this post bridges the gap between high-level concepts and practical understanding with fresh and accessible perspectives.
@@ -50,23 +51,22 @@ toc:
       - name: Future Work
 ---
 
-
 ## Introduction
 
-Distributed training has become indispensable to deep learning, enabling researchers to scale models to billions and even trillions of parameters. 
-Among the key strategies for distributing workloads across multiple GPUs is **pipeline parallelism**, a technique that splits a model into stages, with each stage assigned to a different device. 
+Distributed training has become indispensable to deep learning, enabling researchers to scale models to billions and even trillions of parameters.
+Among the key strategies for distributing workloads across multiple GPUs is **pipeline parallelism**, a technique that splits a model into stages, with each stage assigned to a different device.
 Like an assembly line in manufacturing, pipeline parallelism allows multiple stages of a model to be processed simultaneously, improving throughput and making large-scale training feasible.
 
-However, pipeline parallelism is not without challenges. 
-A major inefficiency stems from **pipeline bubbles**, which occur when devices are idle due to sequential dependencies between computation stages. 
-These idle periods limit throughput and waste computational resources, particularly during the warm-up and flush phases of a pipeline. 
+However, pipeline parallelism is not without challenges.
+A major inefficiency stems from **pipeline bubbles**, which occur when devices are idle due to sequential dependencies between computation stages.
+These idle periods limit throughput and waste computational resources, particularly during the warm-up and flush phases of a pipeline.
 Over the years, several scheduling strategies, such as **1F1B** (one-forward-one-backward) <d-cite key="harlap2018pipedream, fan2021dapple, narayanan2021efficient"/>, have been developed to mitigate bubbles, but none have entirely eliminated them—until now.
 
-A recent paper, "Zero Bubble (Almost) Pipeline Parallelism" <d-cite key="qi2024zero"/>, introduces a breakthrough approach that achieves **zero pipeline bubbles** under synchronous training semantics. 
+A recent paper, "Zero Bubble (Almost) Pipeline Parallelism" <d-cite key="qi2024zero"/>, introduces a breakthrough approach that achieves **zero pipeline bubbles** under synchronous training semantics.
 By splitting the backward pass into two parts: gradients with respect to **inputs** and gradients with respect to **weights**, the authors strategically place operations to fill bubbles and propose an **automatic scheduling algorithm**.
 
 In this post, we demystify the scheduling process, starting with the commonly used 1F1B approach and progressing to the zero-bubble schedules.
-Through **step-by-step derivations and visualizations**, we show how these schedules are constructed and highlight their key advantages. 
+Through **step-by-step derivations and visualizations**, we show how these schedules are constructed and highlight their key advantages.
 Finally, we explore how the insights from these schedules are generalized into an automatic scheduling algorithm.
 Whether you're a seasoned ML systems researcher or new to distributed training, this post will provide clarity and context to help you understand the exciting potential of zero-bubble pipeline parallelism.
 
@@ -74,13 +74,13 @@ Whether you're a seasoned ML systems researcher or new to distributed training, 
 
 ### Distributed Training and Parallelism
 
-As deep learning models grow larger and more complex, training them on a single GPU becomes infeasible due to memory and compute constraints. 
-Distributed training solves this problem by splitting the workload across multiple devices. 
+As deep learning models grow larger and more complex, training them on a single GPU becomes infeasible due to memory and compute constraints.
+Distributed training solves this problem by splitting the workload across multiple devices.
 The two most widely used parallelism strategies are **data parallelism** <d-cite key="goyal2017accurate, li2020pytorch"/> and **model parallelism** <d-cite key="harlap2018pipedream, huang2019gpipe, fan2021dapple, zheng2022alpa"/>.
 
 #### Data Parallelism
 
-In data parallelism, the dataset is divided into smaller mini-batches, and identical copies of the model are deployed across multiple devices. 
+In data parallelism, the dataset is divided into smaller mini-batches, and identical copies of the model are deployed across multiple devices.
 Each device processes a different mini-batch, computes gradients, and synchronizes the results through an all-reduce operation.
 
 {% include figure.liquid loading="eager" path="assets/img/2024-11-26-zero-bubble/data_parallelism.svg" class="img-fluid rounded z-depth-1 p-2" zoomable=true caption="Data parallelism across four devices." %}
@@ -90,7 +90,7 @@ In addition, the cost of communicating gradients grows with the number of device
 
 #### Model Parallelism
 
-In model parallelism, the model itself is split across devices, with each device responsible for a subset of the computations. 
+In model parallelism, the model itself is split across devices, with each device responsible for a subset of the computations.
 Two common forms of model parallelism are:
 
 - **Tensor parallelism**: Splits tensors (e.g., weight matrices) within an operation across devices.
@@ -132,9 +132,9 @@ We use the following notation:
 
 - **Forward operation**: $F_{i,k}$ for stage $i$ and micro-batch $k$.
 - **Backward operation**:
-    - **$B_{i,k}$**: Gradients with respect to **inputs** for stage $i$ and micro-batch $k$.
-    - **$W_{i,k}$**: Gradients with respect to **weights** for stage $i$ and micro-batch $k$.
-    
+  - **$B_{i,k}$**: Gradients with respect to **inputs** for stage $i$ and micro-batch $k$.
+  - **$W_{i,k}$**: Gradients with respect to **weights** for stage $i$ and micro-batch $k$.
+
 The computation graph for this MLP is shown below:
 
 {% include figure.liquid loading="eager" path="assets/img/2024-11-26-zero-bubble/computation_graph.svg" class="img-fluid rounded z-depth-1 p-2" caption="Computation graph for a typical MLP, including a forward pass and back-propagation." zoomable=true %}
@@ -184,7 +184,7 @@ In the next section, we will explore how splitting the backward pass into finer-
 
 ## Toward Zero Bubbles
 
-The 1F1B schedule reduces bubbles to some extent, but it still leaves inefficiencies in the warm-up and flush phases. 
+The 1F1B schedule reduces bubbles to some extent, but it still leaves inefficiencies in the warm-up and flush phases.
 Remember that the backward pass consists of two components:
 
 1. **$B$**: Gradients with respect to **inputs**.
@@ -223,7 +223,7 @@ We will see how the authors build on the above schedule by strategically placing
 ZB-H1 adjusts the starting points of **$W$** passes, filling the tail-end bubbles with $W$ passes without exceeding the memory usage of 1F1B.
 As a result, the bubble size is reduced to approximately one-third of that in 1F1B.
 
-To better understand ZB-H1 in action, we will derive it step by step. 
+To better understand ZB-H1 in action, we will derive it step by step.
 First, let's remove all $W$ operations from our starting point:
 
 <div class="mx-auto" style="max-width: 350px;">
@@ -239,7 +239,6 @@ In order to eliminate bubbles in the flush phase, we shift the last three stages
 <div class="l-body-outset">
     {% include figure.liquid loading="eager" path="assets/img/2024-11-26-zero-bubble/pipeline_3_1_1.svg" class="img-fluid rounded z-depth-1 p-2" zoomable=true %}
 </div>
-
 
 To ensure the design of ZB-H1 meets its goals, we must carefully balance memory usage and computational dependencies while satisfying the following principles:
 
@@ -270,7 +269,7 @@ However, it does not entirely eliminate bubbles, leaving some inefficiencies in 
 
 ### Handcrafted Schedule 2: ZB-H2
 
-If we are willing to slightly relax the memory constraint, we can achieve **zero bubbles** by adding extra $F$ passes during the warm-up phase and reordering $W$ passes in the flush phase. 
+If we are willing to slightly relax the memory constraint, we can achieve **zero bubbles** by adding extra $F$ passes during the warm-up phase and reordering $W$ passes in the flush phase.
 This adjustment results in ZB-H2, which adopts a ''parallelogram-shaped'' layout that completely eliminates idle periods.
 
 Similarly to before, we begin by removing all $W$ operations to allow flexibility in rearranging other operations:
@@ -289,7 +288,7 @@ We fill the warm-up phase with forward operations shifted from later time steps 
     {% include figure.liquid loading="eager" path="assets/img/2024-11-26-zero-bubble/pipeline_3_2_1.svg" class="img-fluid rounded z-depth-1 p-2" zoomable=true %}
 </div>
 
-Now comes the crucial part: we carefully shift the steady-state operations to the left while respecting the sequential dependencies between $F$ and $B$ operations. 
+Now comes the crucial part: we carefully shift the steady-state operations to the left while respecting the sequential dependencies between $F$ and $B$ operations.
 Moreover, we sporadically reserve spots at earlier time steps for $W$ operations to ensure a balanced memory usage.
 
 <div class="l-body-outset">
@@ -307,12 +306,13 @@ Note how the pipeline achieves zero bubbles by transitioning from a trapezoidal 
 
 ZB-H2 eliminates pipeline bubbles entirely and maximizes throughput.
 However, it requires additional memory due to:
-  - More active micro-batches during the warm-up phase.
-  - Delayed $W$ passes increasing peak memory usage.
+
+- More active micro-batches during the warm-up phase.
+- Delayed $W$ passes increasing peak memory usage.
 
 ## Automatic Zero-Bubble Scheduling
 
-While the handcrafted schedules ZB-H1 and ZB-H2 demonstrate the power of finer-grained scheduling, they rely on idealized assumptions, such as identical execution times for $F$, $B$, and $W$. 
+While the handcrafted schedules ZB-H1 and ZB-H2 demonstrate the power of finer-grained scheduling, they rely on idealized assumptions, such as identical execution times for $F$, $B$, and $W$.
 Real-world models, however, often face variable execution times, heterogeneous hardware, and different memory constraints.
 To address this, the authors propose an **automatic zero-bubble scheduling algorithm**, which generalizes into a fully automated framework.
 
@@ -325,9 +325,9 @@ Drawing from the derivation of ZB-H2, the automatic scheduler dynamically adjust
 2. After the warm-up phase, alternate between one $F$ and one $B$, inserting $W$ operations to fill bubbles when gaps larger than $T_W$ occur. Additionally, insert $W$ operations to recycle memory when the memory limit is reached. Over time, this heuristic approach stabilizes into a steady-state 1$F$-1$B$-1$W$ pattern.
 3. At each stage, after all $F$ and $B$ passes are completed, schedule the remaining $W$ operations to clear the pipeline.
 
-Moreover, the communication time required to transfer activations or gradients between stages was ignored in the previous analysis. 
-The authors address optimizer synchronization while maintaining synchronous semantics through an **optimistic** approach. 
-This assumes that most training iterations proceed without numerical issues and that most synchronization steps on global states have no significant effect. 
+Moreover, the communication time required to transfer activations or gradients between stages was ignored in the previous analysis.
+The authors address optimizer synchronization while maintaining synchronous semantics through an **optimistic** approach.
+This assumes that most training iterations proceed without numerical issues and that most synchronization steps on global states have no significant effect.
 Instead of relying on ad-hoc synchronization, the authors propose a **post-hoc update validation**:
 
 1. Before the optimizer step at each stage, a partially reduced global state from the previous stage is combined with the current stage's local state and passed to the next stage.
@@ -359,16 +359,16 @@ Metrics evaluated include:
 
 **ZB-2p** consistently outperformed all other methods across various configurations, achieving throughput improvements of up to **30%** compared to 1F1B, even when using fewer micro-batches.
 
-**ZB-1p** performed comparably to 1F1B-I in single-node setups but outperformed it in multi-node setups where communication bandwidth was a bottleneck. 
+**ZB-1p** performed comparably to 1F1B-I in single-node setups but outperformed it in multi-node setups where communication bandwidth was a bottleneck.
 Its ability to reduce pipeline bubbles without communication overhead was a key advantage.
 
 #### Bubble Rate Analysis
 
-**ZB-2p** achieved a bubble rate of **less than 1%** in most setups. 
-ZB-2p's bubble rate was consistently lower than ZB-H2, showing the effectiveness of the automatic scheduling algorithm. 
+**ZB-2p** achieved a bubble rate of **less than 1%** in most setups.
+ZB-2p's bubble rate was consistently lower than ZB-H2, showing the effectiveness of the automatic scheduling algorithm.
 
 **ZB-1p**'s bubble rate was comparable to ZB-H1, where memory constraints become the dominant factor in limiting improvement.
-    
+
 #### Memory vs. Performance Trade-Offs
 
 **ZB-2p** achieved the best throughput but required roughly **twice** the memory of 1F1B.
@@ -380,18 +380,18 @@ Therefore, ZB-2p is more ideal for memory-rich setups.
 
 Although zero-bubble scheduling shows promising results, we have identified several limitations.
 
-The handcrafted schedules ZB-H1 and ZB-H2 assume that the forward pass ($F$), backward pass for inputs ($B$), and backward pass for weights ($W$) have **identical** execution times. 
+The handcrafted schedules ZB-H1 and ZB-H2 assume that the forward pass ($F$), backward pass for inputs ($B$), and backward pass for weights ($W$) have **identical** execution times.
 In practice, these times can vary significantly across layers and stages and can introduce additional bubbles.
 
-The automatic scheduling algorithm can struggle with highly **heterogeneous device latencies or bandwidths**. 
+The automatic scheduling algorithm can struggle with highly **heterogeneous device latencies or bandwidths**.
 For example, devices with slower interconnects (e.g., PCIe instead of NVLink) or highly distributed setups (e.g., across multiple servers) can cause bottlenecks.
 
-The zero-bubble scheduling strategies assume a **synchronous** training setup, where all pipeline stages must remain in sync. 
+The zero-bubble scheduling strategies assume a **synchronous** training setup, where all pipeline stages must remain in sync.
 This design ensures exact optimization semantics but limits applicability in asynchronous environments.
 
 ## Conclusion
 
-Pipeline bubbles have long been a limiting factor in distributed training, reducing throughput and leaving computational resources under-utilized. 
+Pipeline bubbles have long been a limiting factor in distributed training, reducing throughput and leaving computational resources under-utilized.
 The zero-bubble pipeline scheduling strategies presented in this paper mark a significant step forward, achieving higher throughput while maintaining synchronous training semantics.
 
 ### Contributions
@@ -406,15 +406,15 @@ We summarize the key contributions of zero-bubble scheduling:
 
 While zero-bubble scheduling has demonstrated significant potential, we have identified several avenues for future research.
 
-Adapting the zero-bubble approach to **asynchronous** training settings could further improve scalability by eliminating synchronization requirements. 
+Adapting the zero-bubble approach to **asynchronous** training settings could further improve scalability by eliminating synchronization requirements.
 This would require addressing challenges in managing dependencies and ensuring consistent optimization semantics.
-In addition, future work could focus on extending the automatic scheduler to handle highly **heterogeneous** environments, such as clusters with varying device speeds, memory capacities, and interconnect bandwidths. 
+In addition, future work could focus on extending the automatic scheduler to handle highly **heterogeneous** environments, such as clusters with varying device speeds, memory capacities, and interconnect bandwidths.
 
-Investigating **dynamic scheduling techniques** that adapt in real-time to changing workloads or hardware conditions can optimize training efficiency. 
+Investigating **dynamic scheduling techniques** that adapt in real-time to changing workloads or hardware conditions can optimize training efficiency.
 As **hybrid parallelism strategies** become common, integrating zero-bubble scheduling into DP or TP could lead to greater performance benefits.
 
 ---
 
-Zero-bubble pipeline scheduling represents a significant advance in distributed training, demonstrating how finer-grained scheduling can boost throughput and resource utilization. 
-This blog post builds on these ideas by providing detailed visualizations, contextual insights, and step-by-step clarity, making this complex topic more accessible. 
+Zero-bubble pipeline scheduling represents a significant advance in distributed training, demonstrating how finer-grained scheduling can boost throughput and resource utilization.
+This blog post builds on these ideas by providing detailed visualizations, contextual insights, and step-by-step clarity, making this complex topic more accessible.
 We hope these contributions help others better understand and apply zero-bubble scheduling, sparking more innovation in scalable deep learning systems.
