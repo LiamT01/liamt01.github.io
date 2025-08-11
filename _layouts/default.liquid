@@ -12,6 +12,10 @@
       {% endif %}
       <meta http-equiv="refresh" content="3; url={{ redirect }}">
     {% endif %}
+    {%- if page.redirect_to -%}
+        {% assign redirect_delay = page.redirect_delay | default: 3 %}
+        <meta http-equiv="refresh" content="{{ redirect_delay }}; url={{ page.redirect_to }}/" />
+    {%- endif -%}
     {% include head.liquid %}
   </head>
 
